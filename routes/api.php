@@ -22,19 +22,23 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/generate-api-token', function (Request $request) {
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+    // Hardcoded user data
+    $userData = [
+        'id' => 1,
+        'name' => 'Hardcoded User',
+        'email' => 'hardcoded@email.com',
+        'password' => bcrypt('hardcoded_password'), // bcrypt gebruiken om het wachtwoord te hashen
+    ];
 
-    $user = \App\Models\User::where('email', $request->input('email'))->first();
 
-    if (!$user || !Hash::check($request->input('password'), $user->password)) {
-        throw ValidationException::withMessages([
-            'email' => ['The provided credentials are incorrect.'],
-        ]);
+    $user = \App\Models\User::find($userData['id']);
+
+    if (!$user) {
+
+        $user = \App\Models\User::create($userData);
     }
 
+    // Hardcoded token
     $token = $user->createToken('api-token')->plainTextToken;
 
     return response()->json(['token' => $token]);
